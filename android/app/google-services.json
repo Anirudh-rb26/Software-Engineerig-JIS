@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "744898986170",
+    "project_id": "software-engineering-jis",
+    "storage_bucket": "software-engineering-jis.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:744898986170:android:3fe39faed7834594524283",
+        "android_client_info": {
+          "package_name": "com.anirudhcr2.jiss"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "744898986170-6fd2e1o9spollcvuiqugl9j3t0kna2vv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjw78RlbUhkzspRyLEmt9lVwSRQRCGbIA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "744898986170-6fd2e1o9spollcvuiqugl9j3t0kna2vv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
