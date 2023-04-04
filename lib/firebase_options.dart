@@ -21,11 +21,20 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for android - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -50,33 +59,5 @@ class DefaultFirebaseOptions {
     projectId: 'software-engineering-jis',
     authDomain: 'software-engineering-jis.firebaseapp.com',
     storageBucket: 'software-engineering-jis.appspot.com',
-  );
-
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDjw78RlbUhkzspRyLEmt9lVwSRQRCGbIA',
-    appId: '1:744898986170:android:3fe39faed7834594524283',
-    messagingSenderId: '744898986170',
-    projectId: 'software-engineering-jis',
-    storageBucket: 'software-engineering-jis.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDzuRMGBdgKZxSj74ygcJT7KhIh_vVgXdE',
-    appId: '1:744898986170:ios:53d43e29d166750f524283',
-    messagingSenderId: '744898986170',
-    projectId: 'software-engineering-jis',
-    storageBucket: 'software-engineering-jis.appspot.com',
-    iosClientId: '744898986170-g26n2oiku7sv56f5jg4l7064cjmanbl4.apps.googleusercontent.com',
-    iosBundleId: 'com.anirudh-cr2.jiss',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDzuRMGBdgKZxSj74ygcJT7KhIh_vVgXdE',
-    appId: '1:744898986170:ios:53d43e29d166750f524283',
-    messagingSenderId: '744898986170',
-    projectId: 'software-engineering-jis',
-    storageBucket: 'software-engineering-jis.appspot.com',
-    iosClientId: '744898986170-g26n2oiku7sv56f5jg4l7064cjmanbl4.apps.googleusercontent.com',
-    iosBundleId: 'com.anirudh-cr2.jiss',
   );
 }

@@ -1,11 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jiss/constants/colours.dart';
 
-import '../../homepage/homepage.dart';
-
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  void signUserIn() async {
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text, password: passwordController.text);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,18 +67,20 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 35),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(30, 5, 30, 5),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
                       child: CustomTextfield(
+                        textController: emailController,
                         labelText: "Email Address",
                         iconName: CupertinoIcons.mail,
                         obscureText: false,
                       ),
                     ),
                     const SizedBox(height: 15),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(30, 5, 30, 5),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
                       child: CustomTextfield(
+                        textController: passwordController,
                         labelText: "Password",
                         iconName: CupertinoIcons.padlock,
                         obscureText: true,
@@ -82,7 +91,9 @@ class LoginPage extends StatelessWidget {
                       child: ForgotPasswordComponent(),
                     ),
                     const SizedBox(height: 20),
-                    const LoginButton(),
+                    LoginButton(
+                      onTap: signUserIn,
+                    ),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -96,22 +107,15 @@ class LoginPage extends StatelessWidget {
 }
 
 // Login Button widget starts here.
+// ignore: must_be_immutable
 class LoginButton extends StatelessWidget {
-  const LoginButton({
-    super.key,
-  });
+  void Function()? onTap;
+  LoginButton({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePage(),
-          ),
-        );
-      },
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 40, 20),
         child: Container(
@@ -176,15 +180,18 @@ class ForgotPasswordComponent extends StatelessWidget {
 
 // Forgot Password login page widget ends here.
 // Customised Text fields login page widget starts here.
+// ignore: must_be_immutable
 class CustomTextfield extends StatefulWidget {
   final String labelText;
   final IconData? iconName;
   final bool obscureText;
-  const CustomTextfield(
+  dynamic textController;
+  CustomTextfield(
       {super.key,
       required this.labelText,
       this.iconName,
-      required this.obscureText});
+      required this.obscureText,
+      required this.textController});
 
   @override
   State<CustomTextfield> createState() => _CustomTextfieldState();
@@ -195,28 +202,26 @@ class _CustomTextfieldState extends State<CustomTextfield> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Focus(
-        onFocusChange: (hasFocus) {
-          setState(() {
-            focusColor = hasFocus ? CustomColors().buttonColor : Colors.black;
-          });
-        },
-        child: TextField(
-          obscureText: widget.obscureText,
-          decoration: InputDecoration(
-            labelText: widget.labelText,
-            labelStyle: TextStyle(color: focusColor),
-            prefixIcon: Icon(
-              widget.iconName,
-              color: focusColor,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide:
-                  BorderSide(color: CustomColors().buttonColor, width: 3),
-            ),
-            focusColor: CustomColors().paragraphColor,
+    return Focus(
+      onFocusChange: (hasFocus) {
+        setState(() {
+          focusColor = hasFocus ? CustomColors().buttonColor : Colors.black;
+        });
+      },
+      child: TextField(
+        controller: widget.textController,
+        obscureText: widget.obscureText,
+        decoration: InputDecoration(
+          labelText: widget.labelText,
+          labelStyle: TextStyle(color: focusColor),
+          prefixIcon: Icon(
+            widget.iconName,
+            color: focusColor,
           ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: CustomColors().buttonColor, width: 3),
+          ),
+          focusColor: CustomColors().paragraphColor,
         ),
       ),
     );
