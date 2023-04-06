@@ -2,16 +2,115 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jiss/constants/colours.dart';
+import 'package:jiss/constants/snack.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
+
   final passwordController = TextEditingController();
 
   void signUserIn() async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text, password: passwordController.text);
+    // shows loading page.
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    // logs user in.
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text, password: passwordController.text);
+    } on FirebaseAuthException catch (error) {
+      showErrorMessage(error.code);
+    }
+
+    // pops loading page.
+    Navigator.pop(context);
+  }
+
+  void showErrorMessage(String errorCode) {
+    // The email address entered is not found.
+    switch (errorCode) {
+      case "user-not-found":
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  CustomSnackbar(errorText: "Entered Email ID is incorrect."),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.transparent,
+            ),
+          );
+          return;
+        }
+      case "email-already-exists":
+        {
+          FocusScope.of(context).unfocus();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: CustomSnackbar(
+                errorText:
+                    "Entered Email address already exists, use a different Email address.",
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.transparent,
+            ),
+          );
+          return;
+        }
+      case "internal-error":
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: CustomSnackbar(
+                errorText: "Internal Error, try again.",
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.transparent,
+            ),
+          );
+          return;
+        }
+      case "invalid-email":
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: CustomSnackbar(
+                errorText: "Email address entered is not valid.",
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.transparent,
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          return;
+        }
+      case "wrong-password":
+        {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: CustomSnackbar(
+                errorText: "Entered password is incorrect.",
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.transparent,
+            ),
+          );
+          return;
+        }
+    }
   }
 
   @override
@@ -107,7 +206,6 @@ class LoginPage extends StatelessWidget {
 }
 
 // Login Button widget starts here.
-// ignore: must_be_immutable
 class LoginButton extends StatelessWidget {
   void Function()? onTap;
   LoginButton({super.key, required this.onTap});
