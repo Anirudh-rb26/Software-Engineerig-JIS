@@ -1,23 +1,29 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jiss/constants/colours.dart';
 import 'package:jiss/constants/snack.dart';
-import 'package:jiss/pages/adminpage/login_admin.dart';
+import 'package:jiss/pages/login_register/login/loginpage.dart';
 
-class LoginPage extends StatefulWidget {
-  LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final roleController = TextEditingController();
 
-  void signUserIn() async {
-    // shows loading page.
+  final userDB = FirebaseFirestore.instance.collection('users');
+
+  Future<void> registerUser(
+      String emailString, String passwordString, String role) async {
     showDialog(
       context: context,
       builder: (context) {
@@ -26,44 +32,25 @@ class _LoginPageState extends State<LoginPage> {
         );
       },
     );
-
-    // logs user in.
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text, password: passwordController.text);
-    } on FirebaseAuthException catch (error) {
+    role = role.toLowerCase();
+    print("creating user.");
+    await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(
+            email: emailString, password: passwordString)
+        .then(
+          (value) => {postDetailstoFirestore(emailString, role)},
+        )
+        .catchError((error) {
       showErrorMessage(error.code);
-    }
+      print("at the end of the function");
+    });
 
-    // pops loading page.
     Navigator.pop(context);
-  }
-
-  void adminAccess() async {
-    // shows loading page.
-    showDialog(
-      context: context,
-      builder: (context) {
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      },
-    );
-
-    // Routes to admin page
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const LoginAsAdmin(),
-      ),
-    );
-
-    // pops loading page.
-    // Navigator.pop(context);
   }
 
   void showErrorMessage(String errorCode) {
     // The email address entered is not found.
+    print("error");
     switch (errorCode) {
       case "user-not-found":
         {
@@ -147,6 +134,19 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  postDetailstoFirestore(String email, String role) {
+    print("posting details to firestore");
+    const CircularProgressIndicator();
+    userDB.doc(email).set({"email": email, "role": role});
+
+    print("posting details to firestore done");
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => LoginPage()));
+
+    print("is navigator working?");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,14 +192,14 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     const SizedBox(height: 30),
                     Text(
-                      "Welcome Back!",
+                      "Enter Details",
                       style: TextStyle(
                         color: CustomColors().paragraphColor,
                         fontSize: 35,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 35),
+                    const SizedBox(height: 15),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
                       child: CustomTextfield(
@@ -219,24 +219,45 @@ class _LoginPageState extends State<LoginPage> {
                         obscureText: true,
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20, 20, 40, 20),
-                      child: ForgotPasswordComponent(),
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
+                      child: CustomTextfield(
+                        textController: confirmPasswordController,
+                        labelText: "Confirm password",
+                        iconName: CupertinoIcons.padlock,
+                        obscureText: true,
+                      ),
                     ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        LoginButton(
-                          onTap: signUserIn,
-                        ),
-                        AdminButton(onTap: adminAccess),
-                      ],
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
+                      child: CustomTextfield(
+                        textController: roleController,
+                        labelText: "Enter Position",
+                        iconName: CupertinoIcons.padlock,
+                        obscureText: false,
+                      ),
                     ),
+                    SignupButton(onTap: () {
+                      if (passwordController.text !=
+                          confirmPasswordController.text) {
+                        print("password not same");
+                        CustomSnackbar(
+                          success: false,
+                          errorText: "Entered password does not match.",
+                          snackBarColor: Colors.red,
+                        );
+                      } else {
+                        print("register called");
+                        registerUser(emailController.text,
+                            passwordController.text, roleController.text);
+                      }
+                    }),
                     const SizedBox(height: 20),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -245,10 +266,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// Login Button widget starts here.
-class LoginButton extends StatelessWidget {
+class SignupButton extends StatelessWidget {
   void Function()? onTap;
-  LoginButton({super.key, required this.onTap});
+  SignupButton({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -269,7 +289,7 @@ class LoginButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
                 Text(
-                  "Log In",
+                  "Register",
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 SizedBox(width: 8),
@@ -282,127 +302,3 @@ class LoginButton extends StatelessWidget {
     );
   }
 }
-// Login Button widget ends here.
-
-// AdminButton widget starts here.
-class AdminButton extends StatelessWidget {
-  void Function()? onTap;
-  AdminButton({super.key, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 40, 20),
-        child: Container(
-          width: 250,
-          // alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
-            color: CustomColors().buttonColor,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  "Admin",
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                SizedBox(width: 8),
-                Icon(CupertinoIcons.arrow_right),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-// AdminButton widget ends here.
-
-// Forgot Password login page widget starts here.
-class ForgotPasswordComponent extends StatelessWidget {
-  const ForgotPasswordComponent({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        InkWell(
-          highlightColor: CustomColors().buttonColor,
-          onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => const ForgotPassword(),
-            //   ),
-            // );
-          },
-          child: Text(
-            "Forgot Password?",
-            style: TextStyle(
-              color: CustomColors().paragraphColor,
-            ),
-          ),
-        )
-      ],
-    );
-  }
-}
-
-// Forgot Password login page widget ends here.
-// Customised Text fields login page widget starts here.
-// ignore: must_be_immutable
-class CustomTextfield extends StatefulWidget {
-  final String labelText;
-  final IconData? iconName;
-  final bool obscureText;
-  dynamic textController;
-  CustomTextfield(
-      {super.key,
-      required this.labelText,
-      this.iconName,
-      required this.obscureText,
-      required this.textController});
-
-  @override
-  State<CustomTextfield> createState() => _CustomTextfieldState();
-}
-
-class _CustomTextfieldState extends State<CustomTextfield> {
-  Color focusColor = Colors.black;
-
-  @override
-  Widget build(BuildContext context) {
-    return Focus(
-      onFocusChange: (hasFocus) {
-        setState(() {
-          focusColor = hasFocus ? CustomColors().buttonColor : Colors.black;
-        });
-      },
-      child: TextField(
-        controller: widget.textController,
-        obscureText: widget.obscureText,
-        decoration: InputDecoration(
-          labelText: widget.labelText,
-          labelStyle: TextStyle(color: focusColor),
-          prefixIcon: Icon(
-            widget.iconName,
-            color: focusColor,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: CustomColors().buttonColor, width: 3),
-          ),
-          focusColor: CustomColors().paragraphColor,
-        ),
-      ),
-    );
-  }
-}
-// Customised Text fields login page widget ends here.
