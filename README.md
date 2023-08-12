@@ -31,8 +31,4 @@ To explore the Judicial Information System on your local machine, follow these s
 
 ## Contributions
 
-The Judicial Information System is an open-source project, and contributions are welcome! If you have ideas for improvements, bug fixes, or exciting features, feel free to submit a pull request or raise an issue. Refer to the [contribution guidelines](CONTRIBUTING.md) for more information.
-
-## License
-
-The Judicial Information System is released under the [MIT License](LICENSE).
+The Judicial Information System is an open-source project, and contributions are welcome! If you have ideas for improvements, bug fixes, or exciting features, feel free to submit a pull request or raise an issue.
